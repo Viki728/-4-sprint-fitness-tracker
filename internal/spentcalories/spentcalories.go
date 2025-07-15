@@ -34,13 +34,17 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 		return 0, "", 0, errors.New("failed to convert first element of slice")
 	}
 
-	if stepParseTraining == 0 {
-		return 0, "", 0, errors.New("number of steps 0")
+	if stepParseTraining <= 0 {
+		return 0, "", 0, errors.New("number of steps <= 0")
 	}
 
 	timeParseTraining, err := time.ParseDuration(sliceStepActionTime[2])
 	if err != nil {
 		return 0, "", 0, errors.New("failed to convert three element of slice")
+	}
+
+	if timeParseTraining <= 0 {
+		return 0, "", 0, errors.New("duration must be positive")
 	}
 	return stepParseTraining, sliceStepActionTime[1], timeParseTraining, nil
 }
@@ -108,7 +112,7 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 
 func RunningSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
 	//Проверка входных параметров на корректность
-	if steps <= 0 || weight <= 0 || height <= 0 {
+	if steps <= 0 || weight <= 0 || height <= 0 || duration <= 0 {
 		return 0, errors.New("incorrect input parameters")
 	}
 
@@ -116,13 +120,13 @@ func RunningSpentCalories(steps int, weight, height float64, duration time.Durat
 	vRunningSpentCalories := meanSpeed(steps, height, duration)
 
 	//Рассчитываем и возвращаем кол-во калорий
-	calorRunningSpentCalories := (duration.Minutes() * weight * vRunningSpentCalories) / mInKm
+	calorRunningSpentCalories := (duration.Minutes() * weight * vRunningSpentCalories) / minInH
 	return calorRunningSpentCalories, nil
 }
 
 func WalkingSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
 	//Проверка входных параметров на корректность
-	if steps <= 0 || weight <= 0 || height <= 0 {
+	if steps <= 0 || weight <= 0 || height <= 0 || duration <= 0 {
 		return 0, errors.New("incorrect input parameters")
 	}
 
@@ -130,6 +134,6 @@ func WalkingSpentCalories(steps int, weight, height float64, duration time.Durat
 	vWalkingSpentCalories := meanSpeed(steps, height, duration)
 
 	//Рассчитываем и возвращаем кол-во калорий (с учетом корректирующего коэффициента)
-	calorWalkingSpentCalories := ((duration.Minutes() * weight * vWalkingSpentCalories) / mInKm) * walkingCaloriesCoefficient
+	calorWalkingSpentCalories := ((duration.Minutes() * weight * vWalkingSpentCalories) / minInH) * walkingCaloriesCoefficient
 	return calorWalkingSpentCalories, nil
 }

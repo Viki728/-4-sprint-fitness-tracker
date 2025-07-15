@@ -3,6 +3,7 @@ package daysteps
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -34,8 +35,8 @@ func parsePackage(data string) (int, time.Duration, error) {
 	}
 
 	//Возвращаем ошибку, если количество шагов равно 0
-	if step == 0 {
-		return 0, 0, errors.New("number of steps 0")
+	if step <= 0 {
+		return 0, 0, errors.New("number of steps <= 0")
 	}
 
 	//Преобразуем второй элемент слайса в time.Duration
@@ -44,6 +45,9 @@ func parsePackage(data string) (int, time.Duration, error) {
 		return 0, 0, errors.New("failed to convert second element of slice")
 	}
 
+	if t <= 0 {
+		return 0, 0, errors.New("duration <= 0")
+	}
 	return step, t, nil
 }
 
@@ -51,7 +55,8 @@ func DayActionInfo(data string, weight, height float64) string {
 	//Получаем данные о количестве шагов и продолжительности прогулки
 	steps, duration, err := parsePackage(data)
 	if err != nil {
-		return fmt.Sprintf("Error: %v", err)
+		log.Println(err)
+		return ""
 	}
 
 	//Проверяем, чтобы количество шагов было больше 0
