@@ -23,7 +23,7 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	sliceStepActionTime := strings.Split(data, ",")
 
 	//Проверяем, чтобы длина слайса была равна 3, иначе  - выдаем ошибку
-	if len(sliceStepActionTime) < 3 || len(sliceStepActionTime) > 3 {
+	if len(sliceStepActionTime) != 3 {
 		return 0, "", 0, errors.New("slice length is less than 3")
 	}
 
@@ -31,7 +31,7 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	//и возвращаем возможные ошибки
 	stepParseTraining, err := strconv.Atoi(sliceStepActionTime[0])
 	if err != nil {
-		return 0, "", 0, errors.New("failed to convert first element of slice")
+		return 0, "", 0, fmt.Errorf("failed to convert first element of the slice: %w", err)
 	}
 
 	if stepParseTraining <= 0 {
@@ -40,7 +40,7 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 
 	timeParseTraining, err := time.ParseDuration(sliceStepActionTime[2])
 	if err != nil {
-		return 0, "", 0, errors.New("failed to convert three element of slice")
+		return 0, "", 0, fmt.Errorf("failed to convert third element of the slice: %w", err)
 	}
 
 	if timeParseTraining <= 0 {
@@ -82,10 +82,10 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 		return "", err
 	}
 	//Проверяем какой вид тренировки был передан в строке
+	distanceTrainingInfo := distance(stepsTrainingInfo, height)
+	v := meanSpeed(stepsTrainingInfo, height, duration)
 	switch activity {
 	case "Бег":
-		distanceTrainingInfo := distance(stepsTrainingInfo, height)
-		v := meanSpeed(stepsTrainingInfo, height, duration)
 		calor, err := RunningSpentCalories(stepsTrainingInfo, weight, height, duration)
 		if err != nil {
 			return "", err
@@ -95,8 +95,6 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 		return result, nil
 
 	case "Ходьба":
-		distanceTrainingInfo := distance(stepsTrainingInfo, height)
-		v := meanSpeed(stepsTrainingInfo, height, duration)
 		calor, err := WalkingSpentCalories(stepsTrainingInfo, weight, height, duration)
 		if err != nil {
 			return "", err
@@ -126,10 +124,18 @@ func RunningSpentCalories(steps int, weight, height float64, duration time.Durat
 
 func WalkingSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
 	//Проверка входных параметров на корректность
-	if steps <= 0 || weight <= 0 || height <= 0 || duration <= 0 {
-		return 0, errors.New("incorrect input parameters")
+	if steps <= 0 {
+		return 0, fmt.Errorf("incorrect input parameters: %d", steps)
 	}
-
+	if weight <= 0 {
+		return 0, fmt.Errorf("incorrect input parameters: %.2f", weight)
+	}
+	if height <= 0 {
+		return 0, fmt.Errorf("incorrect input parameters: %.2f", height)
+	}
+	if duration <= 0 {
+		return 0, fmt.Errorf("incorrect input parameters: %v", duration)
+	}
 	//Рассчитываем среднюю скорость с помощью meanSpeed()
 	vWalkingSpentCalories := meanSpeed(steps, height, duration)
 

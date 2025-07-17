@@ -31,7 +31,7 @@ func parsePackage(data string) (int, time.Duration, error) {
 	//Преобразуем кол-во шагов в тип int
 	step, err := strconv.Atoi(sliceStepAndTime[0])
 	if err != nil {
-		return 0, 0, errors.New("failed to convert first element of slice")
+		return 0, 0, fmt.Errorf("failed to convert first element of the slice: %w", err)
 	}
 
 	//Возвращаем ошибку, если количество шагов равно 0
@@ -42,7 +42,7 @@ func parsePackage(data string) (int, time.Duration, error) {
 	//Преобразуем второй элемент слайса в time.Duration
 	t, err := time.ParseDuration(sliceStepAndTime[1])
 	if err != nil {
-		return 0, 0, errors.New("failed to convert second element of slice")
+		return 0, 0, fmt.Errorf("failed to convert second element of the slice: %w", err)
 	}
 
 	if t <= 0 {
@@ -65,7 +65,7 @@ func DayActionInfo(data string, weight, height float64) string {
 	}
 
 	//Вычисляем дистанцию в км
-	diststion := (float64(steps) * stepLength) / float64(mInKm)
+	diststion := (float64(steps) * stepLength) / mInKm
 
 	//Вычисляем кол-во калорий, потраченных на прогулке
 
